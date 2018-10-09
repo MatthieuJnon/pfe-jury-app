@@ -140,7 +140,7 @@ public class HttpUtils {
     private static SSLContext trustCA(){
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = new BufferedInputStream(new FileInputStream("/home/beduneba/Documents/AndroidStudioProjects/pfe-jury-app/app/res/chain.crt"));
+            InputStream caInput = new BufferedInputStream(new FileInputStream("res/chain.crt"));
             Certificate ca;
             ca = cf.generateCertificate(caInput);
             LOGGER.log(Level.INFO, "Using certificate : " + ((X509Certificate) ca).getSubjectDN());
