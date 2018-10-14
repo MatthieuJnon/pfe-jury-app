@@ -1,5 +1,8 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -37,6 +40,7 @@ public class HttpUtils {
     private static final Logger LOGGER = Logger.getLogger( HttpUtils.class.getName() );
 
     private static HttpsURLConnection connection = null;
+    public static String token = null;
 
     /**
      * Execute a HTTPS request to the url provided.
@@ -47,10 +51,9 @@ public class HttpUtils {
      * @return The result of the request from the server.
      */
 
-    public static String executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters) {
+    public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters) {
         try {
-            if(connection == null)
-                connect(type,targetURL,parameters);
+            connect(type,targetURL,parameters);
 
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()));
@@ -60,11 +63,21 @@ public class HttpUtils {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            in.close();
 
-            return response.toString();
+
+
+            JSONObject jsonObject = new JSONObject(response.toString());
+
+
+            if(jsonObject.get("api").equals("LOGON"))
+                token = jsonObject.get("token").toString();
+
+            return jsonObject;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Cannot execute request", e);
+            return null;
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
             return null;
         }
     }
@@ -76,7 +89,7 @@ public class HttpUtils {
      * @param targetURL URL of the request
      * @return The result of the request from the server.
      */
-    public static String executeRequest(String type, String targetURL) {
+    public static JSONObject executeRequest(String type, String targetURL) {
         return executeRequest(type,targetURL,null);
     }
 
@@ -89,6 +102,8 @@ public class HttpUtils {
      */
     private static void connect(final String type, final String targetURL,
                                 final LinkedHashMap<String, String> parameters){
+
+        LOGGER.log(Level.INFO, "Opening connection to the server");
 
         // SSL Factory for the https certificate
         SSLSocketFactory socketFactory = trustCA().getSocketFactory();
