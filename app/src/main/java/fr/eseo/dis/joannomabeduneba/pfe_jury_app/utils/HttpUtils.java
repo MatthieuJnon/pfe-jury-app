@@ -1,11 +1,15 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
+import com.google.common.io.ByteStreams;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,6 +42,7 @@ import javax.net.ssl.TrustManagerFactory;
 public class HttpUtils {
 
     private static final Logger LOGGER = Logger.getLogger( HttpUtils.class.getName() );
+    private static final String PATHFILE = "/home/beduneba/Documents/file.png";
 
     private static HttpsURLConnection connection = null;
     public static String token = null;
@@ -51,33 +56,25 @@ public class HttpUtils {
      * @return The result of the request from the server.
      */
 
-    public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters) {
+    public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters, boolean isPoster) {
+
         try {
             connect(type,targetURL,parameters);
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
+            final InputStream input = connection.getInputStream();
 
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+            if(isPoster){
+                parsePng(input);
+                return new JSONObject().put("result","OK").put("api", "POSTR");
+            } else {
+                return parseJson(input);
             }
 
-
-
-            JSONObject jsonObject = new JSONObject(response.toString());
-
-
-            if(jsonObject.get("api").equals("LOGON"))
-                token = jsonObject.get("token").toString();
-
-            return jsonObject;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Cannot execute request", e);
             return null;
         } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
+            LOGGER.log(Level.SEVERE, "Cannot generate json response", e);
             return null;
         }
     }
@@ -90,7 +87,82 @@ public class HttpUtils {
      * @return The result of the request from the server.
      */
     public static JSONObject executeRequest(String type, String targetURL) {
-        return executeRequest(type,targetURL,null);
+        return executeRequest(type,targetURL,null, false);
+    }
+
+    /**
+     * Execute a HTTPS request to the url provided.
+     *
+     * @param type Type of the request (GET, POST,..)
+     * @param targetURL URL of the request
+     * @param isPoster Request the poster
+     * @return The result of the request from the server.
+     */
+    public static JSONObject executeRequest(String type, String targetURL, boolean isPoster) {
+        return executeRequest(type,targetURL,null, isPoster);
+    }
+
+    /**
+     * Execute a HTTPS request to the url provided.
+     *
+     * @param type Type of the request (GET, POST,..)
+     * @param targetURL URL of the request
+     * @param parameters Parameters for the request
+     * @return The result of the request from the server.
+     */
+    public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters) {
+        return executeRequest(type,targetURL,parameters, false);
+    }
+
+
+    /**
+     * Parse the request and generate a png image from the bytes.
+     *
+     * @param input The input stream
+     */
+    private static void parsePng(final InputStream input){
+        File file = new File(PATHFILE);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(ByteStreams.toByteArray(input));
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Cannot generate png", e);
+        }
+    }
+
+    /**
+     * Parse the request and generate the json response.
+     *
+     * @param input The input stream
+     * @return The json response
+     */
+    private static JSONObject parseJson(final InputStream input){
+        try {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(input));
+
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+
+            JSONObject jsonObject = new JSONObject(response.toString());
+
+            if(jsonObject.get("api").equals("LOGON"))
+                token = jsonObject.get("token").toString();
+
+            return jsonObject;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Cannot execute request", e);
+            return null;
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
+            return null;
+        }
     }
 
 

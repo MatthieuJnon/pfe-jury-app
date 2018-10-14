@@ -118,7 +118,6 @@ public class HttpUtilsTest {
     }
 
     @Test
-    @Ignore
     public void requestPOSTRTest() throws JSONException {
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
         params.put("q","POSTR");
@@ -127,9 +126,7 @@ public class HttpUtilsTest {
         params.put("token",HttpUtils.token);
         String type = "GET";
 
-        JSONObject response = HttpUtils.executeRequest(type,URL,params);
-
-        System.out.println(response.toString());
+        JSONObject response = HttpUtils.executeRequest(type,URL,params, true);
 
         Assert.assertNotNull(null, response);
         Assert.assertEquals("OK", response.get("result"));
