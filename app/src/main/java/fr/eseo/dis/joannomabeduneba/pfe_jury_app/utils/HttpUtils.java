@@ -32,6 +32,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.Application;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
+
 /**
  * Create and maintain the connexion to the API SoManager.
  * Provide functions to easily send request.
@@ -42,10 +45,21 @@ import javax.net.ssl.TrustManagerFactory;
 public class HttpUtils {
 
     private static final Logger LOGGER = Logger.getLogger( HttpUtils.class.getName() );
-    private static final String PATHFILE = "/home/beduneba/Documents/file.png";
+    public static final String URL = "https://192.168.4.248/pfe/webservice.php?";
+    private static final String PATHFILE = "src/main//res/drawable/";
 
     private static HttpsURLConnection connection = null;
     public static String token = null;
+
+
+    public static boolean requestOK(JSONObject json){
+        try {
+            return json.get("result").equals("OK");
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
+            return false;
+        }
+    }
 
     /**
      * Execute a HTTPS request to the url provided.
@@ -64,7 +78,7 @@ public class HttpUtils {
             final InputStream input = connection.getInputStream();
 
             if(isPoster){
-                parsePng(input);
+                parsePng(input, "poster.png");
                 return new JSONObject().put("result","OK").put("api", "POSTR");
             } else {
                 return parseJson(input);
@@ -119,9 +133,10 @@ public class HttpUtils {
      * Parse the request and generate a png image from the bytes.
      *
      * @param input The input stream
+     * @param name Name of the file, should contain the extension
      */
-    private static void parsePng(final InputStream input){
-        File file = new File(PATHFILE);
+    private static void parsePng(final InputStream input, String name){
+        File file = new File(PATHFILE + name);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(file);
@@ -152,7 +167,7 @@ public class HttpUtils {
 
             JSONObject jsonObject = new JSONObject(response.toString());
 
-            if(jsonObject.get("api").equals("LOGON"))
+            if(requestOK(jsonObject) && jsonObject.get("api").equals("LOGON"))
                 token = jsonObject.get("token").toString();
 
             return jsonObject;
@@ -208,8 +223,6 @@ public class HttpUtils {
             connection.setRequestProperty("Content-Type",
                     "application/json");
 
-            connection.setRequestProperty("Content-Length",
-                    Integer.toString(parameterUrl.getBytes().length));
             connection.setRequestMethod(type);
             connection.setDoOutput(true);
         } catch (IOException e) {
@@ -227,7 +240,7 @@ public class HttpUtils {
     private static SSLContext trustCA(){
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = new BufferedInputStream(new FileInputStream("res/chain.crt"));
+            InputStream caInput = Application.getAppContext().getResources().openRawResource(R.raw.chain);
             Certificate ca;
             ca = cf.generateCertificate(caInput);
             LOGGER.log(Level.INFO, "Using certificate : " + ((X509Certificate) ca).getSubjectDN());
@@ -254,5 +267,8 @@ public class HttpUtils {
             return null;
         }
     }
+
+
+
 
 }
