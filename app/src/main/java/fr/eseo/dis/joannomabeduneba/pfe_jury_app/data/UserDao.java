@@ -26,4 +26,7 @@ public interface UserDao {
     @Query("SELECT * FROM users WHERE isLogged = 1")
     List<User> getLoggedUser();
 
+    @Query("SELECT * FROM users WHERE name=:name")
+    List<User> getUserFromName(String name);
+
 }

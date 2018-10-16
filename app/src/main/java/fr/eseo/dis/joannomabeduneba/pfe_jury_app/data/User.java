@@ -13,6 +13,8 @@ public class User {
     @NonNull
     private String name;
 
+    private String password;
+
     @NonNull
     private String role;
 
@@ -28,6 +30,7 @@ public class User {
 
     public User(int uid,
                 @NonNull String name,
+                String password,
                 @NonNull String role,
                 @NonNull String forename,
                 @NonNull String lastname,
@@ -36,11 +39,20 @@ public class User {
     {
         this.uid = uid;
         this.name = name;
+        this.password = password;
         this.role = role;
         this.forename = forename;
         this.lastname = lastname;
         this.isLogged = isLogged;
         this.token = token;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getToken() {
