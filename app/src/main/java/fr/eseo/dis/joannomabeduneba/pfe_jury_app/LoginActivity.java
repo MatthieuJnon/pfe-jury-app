@@ -331,6 +331,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if (HttpUtils.requestOK(response)) {
                     User user = new User(0
                             , mUsername
+                            , mPassword
                             , HttpUtils.requestFromJsonInfo(response, "descr")
                             , HttpUtils.requestFromJsonInfo(response, "username")
                             , HttpUtils.requestFromJsonInfo(response, "surname")
