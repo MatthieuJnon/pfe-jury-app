@@ -17,7 +17,7 @@ public interface UserJuryJoinDao {
             "user_jury_join.juryId=:juryId")
     List<User> getUsersForJury(final int juryId);
 
-    @Query("SELECT * FROM users INNER JOIN user_jury_join ON " +
+    @Query("SELECT * FROM jury INNER JOIN user_jury_join ON " +
             "jury.juryId=user_jury_join.juryId WHERE " +
             "user_jury_join.userId=:uid")
     List<Jury> getJuriesForUser(final int uid);

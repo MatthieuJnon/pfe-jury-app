@@ -12,7 +12,7 @@ import android.arch.persistence.room.Index;
                             parentColumns = "uid",
                             childColumns = "userId"),
                 @ForeignKey(entity = Jury.class,
-                            parentColumns = "id",
+                            parentColumns = "juryId",
                             childColumns = "juryId")
         })
 public class UserJuryJoin {
@@ -23,4 +23,5 @@ public class UserJuryJoin {
         this.userId = userId;
         this.juryId = juryId;
     }
+
 }
