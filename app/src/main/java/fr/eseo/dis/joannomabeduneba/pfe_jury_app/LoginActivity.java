@@ -3,10 +3,10 @@ package fr.eseo.dis.joannomabeduneba.pfe_jury_app;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,8 +40,6 @@ import java.util.List;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -69,8 +68,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
-        populateAutoComplete();
-
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -93,10 +90,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        fastLogin();
     }
 
-    private void populateAutoComplete() {
-        getLoaderManager().initLoader(0, null, this);
+    private void fastLogin() {
+        new DatabaseUsersHandler(this).execute();
     }
 
     /**
@@ -105,11 +103,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
     }
 
 
@@ -236,22 +229,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             emails.add(cursor.getString(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
-
-        addEmailsToAutoComplete(emails);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
     }
 
 
@@ -306,7 +288,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             , true
                             , token);
 
-                    List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getUserFromName("");
+                    List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getUserFromName(mUsername);
 
                     if( users == null || users.isEmpty() ){
                         PFEDatabase
@@ -338,6 +320,40 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+    }
+
+    private class DatabaseUsersHandler extends AsyncTask<Void, Void, User> {
+
+        //Prevent leak
+        private WeakReference<Activity> weakActivity;
+
+
+        public DatabaseUsersHandler(Activity activity) {
+            weakActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected User doInBackground(Void... params) {
+            List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getAllUsers();
+            for(int i = 0 ; i < users.size() ; i ++){
+                if(users.get(i).isLogged()){
+                    return users.get(i);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            LoginActivity activity = (LoginActivity) weakActivity.get();
+            if(activity == null || user == null) {
+                return;
+            }
+            activity.showProgress(true);
+            activity.mAuthTask = new UserLoginTask(user.getName(), user.getPassword());
+            activity.mAuthTask.execute((Void) null);
+
         }
     }
 }
