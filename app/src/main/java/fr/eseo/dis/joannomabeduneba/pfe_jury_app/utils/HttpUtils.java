@@ -2,6 +2,7 @@ package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
 import com.google.common.io.ByteStreams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,7 +45,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
 
 public class HttpUtils {
 
-    private static final Logger LOGGER = Logger.getLogger( HttpUtils.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger(HttpUtils.class.getName());
     public static final String URL = "https://192.168.4.248/pfe/webservice.php?";
     private static final String PATHFILE = "src/main//res/drawable/";
 
@@ -52,7 +53,7 @@ public class HttpUtils {
     public static String token = null;
 
 
-    public static boolean requestOK(JSONObject json){
+    public static boolean requestOK(JSONObject json) {
         try {
             return json.get("result").equals("OK");
         } catch (JSONException e) {
@@ -61,11 +62,29 @@ public class HttpUtils {
         }
     }
 
+    public static String requestFromJson(JSONObject json, String request) {
+        try {
+            return (String) json.get(request);
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
+            return null;
+        }
+    }
+
+    public static String requestFromJsonInfo(JSONObject json, String request) {
+        try {
+            return (String) ((JSONArray) json.get("info")).getJSONObject(0).get(request);
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, "Cannot parse json response", e);
+            return "default";
+        }
+    }
+
     /**
      * Execute a HTTPS request to the url provided.
      *
-     * @param type Type of the request (GET, POST,..)
-     * @param targetURL URL of the request
+     * @param type       Type of the request (GET, POST,..)
+     * @param targetURL  URL of the request
      * @param parameters Parameters for the request
      * @return The result of the request from the server.
      */
@@ -73,13 +92,13 @@ public class HttpUtils {
     public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters, boolean isPoster) {
 
         try {
-            connect(type,targetURL,parameters);
+            connect(type, targetURL, parameters);
 
             final InputStream input = connection.getInputStream();
 
-            if(isPoster){
+            if (isPoster) {
                 parsePng(input, "poster.png");
-                return new JSONObject().put("result","OK").put("api", "POSTR");
+                return new JSONObject().put("result", "OK").put("api", "POSTR");
             } else {
                 return parseJson(input);
             }
@@ -96,36 +115,36 @@ public class HttpUtils {
     /**
      * Execute a HTTPS request to the url provided.
      *
-     * @param type Type of the request (GET, POST,..)
+     * @param type      Type of the request (GET, POST,..)
      * @param targetURL URL of the request
      * @return The result of the request from the server.
      */
     public static JSONObject executeRequest(String type, String targetURL) {
-        return executeRequest(type,targetURL,null, false);
+        return executeRequest(type, targetURL, null, false);
     }
 
     /**
      * Execute a HTTPS request to the url provided.
      *
-     * @param type Type of the request (GET, POST,..)
+     * @param type      Type of the request (GET, POST,..)
      * @param targetURL URL of the request
-     * @param isPoster Request the poster
+     * @param isPoster  Request the poster
      * @return The result of the request from the server.
      */
     public static JSONObject executeRequest(String type, String targetURL, boolean isPoster) {
-        return executeRequest(type,targetURL,null, isPoster);
+        return executeRequest(type, targetURL, null, isPoster);
     }
 
     /**
      * Execute a HTTPS request to the url provided.
      *
-     * @param type Type of the request (GET, POST,..)
-     * @param targetURL URL of the request
+     * @param type       Type of the request (GET, POST,..)
+     * @param targetURL  URL of the request
      * @param parameters Parameters for the request
      * @return The result of the request from the server.
      */
     public static JSONObject executeRequest(String type, String targetURL, LinkedHashMap<String, String> parameters) {
-        return executeRequest(type,targetURL,parameters, false);
+        return executeRequest(type, targetURL, parameters, false);
     }
 
 
@@ -133,9 +152,9 @@ public class HttpUtils {
      * Parse the request and generate a png image from the bytes.
      *
      * @param input The input stream
-     * @param name Name of the file, should contain the extension
+     * @param name  Name of the file, should contain the extension
      */
-    private static void parsePng(final InputStream input, String name){
+    private static void parsePng(final InputStream input, String name) {
         File file = new File(PATHFILE + name);
         FileOutputStream fos = null;
         try {
@@ -154,7 +173,7 @@ public class HttpUtils {
      * @param input The input stream
      * @return The json response
      */
-    private static JSONObject parseJson(final InputStream input){
+    private static JSONObject parseJson(final InputStream input) {
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(input));
@@ -167,7 +186,7 @@ public class HttpUtils {
 
             JSONObject jsonObject = new JSONObject(response.toString());
 
-            if(requestOK(jsonObject) && jsonObject.get("api").equals("LOGON"))
+            if (requestOK(jsonObject) && jsonObject.get("api").equals("LOGON"))
                 token = jsonObject.get("token").toString();
 
             return jsonObject;
@@ -183,19 +202,20 @@ public class HttpUtils {
 
     /**
      * Open a connection to the server
-     * @param type Type of the request (GET,POST,..)
-     * @param targetURL Url of the server
+     *
+     * @param type       Type of the request (GET,POST,..)
+     * @param targetURL  Url of the server
      * @param parameters Parameters for the request
      */
     private static void connect(final String type, final String targetURL,
-                                final LinkedHashMap<String, String> parameters){
+                                final LinkedHashMap<String, String> parameters) {
 
         LOGGER.log(Level.INFO, "Opening connection to the server");
 
         // SSL Factory for the https certificate
         SSLSocketFactory socketFactory = trustCA().getSocketFactory();
 
-        if(socketFactory == null){
+        if (socketFactory == null) {
             return;
         }
 
@@ -203,13 +223,13 @@ public class HttpUtils {
         // Regroup params
         String parameterUrl = "";
 
-        if(parameters != null){
+        if (parameters != null) {
             // Add parameters to the url
             for (Map.Entry<String, String> mapString : parameters.entrySet()) {
                 parameterUrl += mapString.getKey() + "=" + mapString.getValue() + "&";
             }
 
-            parameterUrl = parameterUrl.substring(0,parameterUrl.length() -1);
+            parameterUrl = parameterUrl.substring(0, parameterUrl.length() - 1);
         }
 
         // Open the connexion
@@ -235,9 +255,10 @@ public class HttpUtils {
     /**
      * Trust the certificate from soManager
      * From exemple : https://www.washington.edu/itconnect/security/ca/load-der.crt
+     *
      * @return The context for the certificate, should be used during the connection
      */
-    private static SSLContext trustCA(){
+    private static SSLContext trustCA() {
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             InputStream caInput = Application.getAppContext().getResources().openRawResource(R.raw.chain);
@@ -267,8 +288,6 @@ public class HttpUtils {
             return null;
         }
     }
-
-
 
 
 }

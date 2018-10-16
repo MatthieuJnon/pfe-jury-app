@@ -21,7 +21,7 @@ public abstract class PFEDatabase extends RoomDatabase {
     private static final String DB_NAME = "PFEDatabase.db";
     private static volatile PFEDatabase instance;
 
-    static synchronized PFEDatabase getInstance(Context context) {
+    public static synchronized PFEDatabase getInstance(Context context) {
         if (instance == null) {
             instance = create(context);
         }

@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -312,11 +314,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
             LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
-            parameters.put("q","LOGON");
+            parameters.put("q", "LOGON");
             parameters.put("user", mUsername);
             parameters.put("pass", mPassword);
 
-            JSONObject response = HttpUtils.executeRequest("GET",HttpUtils.URL,parameters);
+            JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters);
+
+            if (HttpUtils.requestOK(response)) {
+                parameters = new LinkedHashMap<>();
+                parameters.put("q", "MYINF");
+                parameters.put("user", mUsername);
+                String token = HttpUtils.requestFromJson(response, "token");
+                parameters.put("token", token);
+                response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters);
+
+                if (HttpUtils.requestOK(response)) {
+                    User user = new User(0
+                            , mUsername
+                            , HttpUtils.requestFromJsonInfo(response, "descr")
+                            , HttpUtils.requestFromJsonInfo(response, "username")
+                            , HttpUtils.requestFromJsonInfo(response, "surname")
+                            , true
+                            , token);
+                    PFEDatabase
+                            .getInstance(Application.getAppContext())
+                            .getUserDao()
+                            .insert(user);
+
+                }
+            }
 
             return HttpUtils.requestOK(response);
         }
