@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 @Entity(tableName = "users")
 public class User {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int uid;
 
     @NonNull

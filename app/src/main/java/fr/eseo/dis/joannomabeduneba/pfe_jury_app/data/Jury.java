@@ -5,10 +5,10 @@ import android.arch.persistence.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity
+@Entity(tableName = "jury")
 public class Jury {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public final int juryId;
 
     public final Date date;
@@ -17,4 +17,5 @@ public class Jury {
         this.juryId = juryId;
         this.date = date;
     }
+
 }
