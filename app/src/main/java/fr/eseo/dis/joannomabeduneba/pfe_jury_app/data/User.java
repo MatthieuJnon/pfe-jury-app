@@ -22,17 +22,33 @@ public class User {
     @NonNull
     private String lastname;
 
+    private boolean isLogged;
+
+    private String token;
+
     public User(int uid,
                 @NonNull String name,
                 @NonNull String role,
                 @NonNull String forename,
-                @NonNull String lastname)
+                @NonNull String lastname,
+                boolean isLogged,
+                String token)
     {
         this.uid = uid;
         this.name = name;
         this.role = role;
         this.forename = forename;
         this.lastname = lastname;
+        this.isLogged = isLogged;
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public int getUid() {
@@ -41,6 +57,14 @@ public class User {
 
     public void setUid( int uid) {
         this.uid = uid;
+    }
+
+    public boolean isLogged() {
+        return isLogged;
+    }
+
+    public void setLogged(boolean logged) {
+        isLogged = logged;
     }
 
     @NonNull
