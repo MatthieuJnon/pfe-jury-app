@@ -14,7 +14,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.Converters;
         UserProjectJoin.class,
         Jury.class,
         UserJuryJoin.class
-}, version = 2)
+}, version = 3)
 @TypeConverters({Converters.class})
 public abstract class PFEDatabase extends RoomDatabase {
 
@@ -32,7 +32,9 @@ public abstract class PFEDatabase extends RoomDatabase {
         return Room.databaseBuilder(
                 context,
                 PFEDatabase.class,
-                DB_NAME).build();
+                DB_NAME)
+                .fallbackToDestructiveMigration()
+                .build();
     }
 
     public abstract UserProjectJoinDao getUserProjectJoinDao();
