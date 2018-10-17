@@ -29,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -40,6 +41,7 @@ import java.util.List;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.OnSwipeTouchListener;
 
 /**
  * A login screen that offers login via email/password.
@@ -290,17 +292,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                     List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getUserFromName(mUsername);
 
-                    if( users == null || users.isEmpty() ){
-                        PFEDatabase
-                                .getInstance(Application.getAppContext())
-                                .getUserDao()
-                                .insert(user);
+                    if( users != null ){
+                        if(!users.isEmpty()){
+                            users.get(0).setLogged(true);
+                            PFEDatabase.getInstance(Application.getAppContext()).getUserDao().update(users.get(0));
+                        } else {
+                            PFEDatabase
+                                    .getInstance(Application.getAppContext())
+                                    .getUserDao()
+                                    .insert(user);
+                        }
                     }
                 }
             }
 
             return HttpUtils.requestOK(response);
         }
+
 
         @Override
         protected void onPostExecute(final Boolean success) {
@@ -337,6 +345,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected User doInBackground(Void... params) {
             List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getAllUsers();
             for(int i = 0 ; i < users.size() ; i ++){
+                System.out.println(users.get(i));
                 if(users.get(i).isLogged()){
                     return users.get(i);
                 }

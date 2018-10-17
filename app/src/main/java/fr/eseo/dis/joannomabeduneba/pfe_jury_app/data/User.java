@@ -28,6 +28,20 @@ public class User {
 
     private String token;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "uid=" + uid +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
+                ", forename='" + forename + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", isLogged=" + isLogged +
+                ", token='" + token + '\'' +
+                '}';
+    }
+
     public User(int uid,
                 @NonNull String name,
                 String password,
