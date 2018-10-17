@@ -1,45 +1,54 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.List;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
-import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.OnSwipeTouchListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     private RecyclerView mRecyclerView;
-    private Button mDcButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
-        mDcButton = findViewById(R.id.dcButton);
-        mRecyclerView.setOnTouchListener(new OnSwipeTouchListener(this) {
-            public void onSwipeBottom() {
-                mDcButton.setVisibility(View.VISIBLE);
-                mDcButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new UserDcTask().execute();
-                    }
-                });
-            }
-
-        });
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.kebab_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_disconnect) {
+            new UserDcTask().execute();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        return false;
+    }
+
 
     public class UserDcTask extends AsyncTask<Void, Void, Boolean> {
 

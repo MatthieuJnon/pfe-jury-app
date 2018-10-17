@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -24,12 +23,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -41,7 +38,6 @@ import java.util.List;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
-import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.OnSwipeTouchListener;
 
 /**
  * A login screen that offers login via email/password.
@@ -318,6 +314,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             if (success) {
                 Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
                 LoginActivity.this.startActivity(myIntent);
+                finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
