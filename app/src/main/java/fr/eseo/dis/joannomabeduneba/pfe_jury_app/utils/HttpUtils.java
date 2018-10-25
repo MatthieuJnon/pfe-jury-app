@@ -1,5 +1,7 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
+import android.util.Log;
+
 import com.google.common.io.ByteStreams;
 
 import org.json.JSONArray;
@@ -35,6 +37,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.Application;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 
 /**
  * Create and maintain the connexion to the API SoManager.
@@ -80,6 +84,24 @@ public class HttpUtils {
         }
     }
 
+
+    public static String revalidateToken(User u) {
+        LinkedHashMap<String, String> params = new LinkedHashMap<>();
+        params.put("q", "LOGON");
+        params.put("user", u.getName());
+        params.put("pass", u.getPassword());
+
+        JSONObject res = executeRequest("GET", URL, params);
+
+        u.setToken(requestFromJson(res, "token"));
+
+        PFEDatabase.getInstance(Application.getAppContext())
+                .getUserDao()
+                .update(u);
+
+        return requestFromJson(res, "token");
+    }
+
     /**
      * Execute a HTTPS request to the url provided.
      *
@@ -97,10 +119,33 @@ public class HttpUtils {
             final InputStream input = connection.getInputStream();
 
             if (isPoster) {
-                parsePng(input, "poster.png");
+                try {
+                    parsePng(input, "poster.png");
+                } catch (IOException e) {
+//                  This probably means that there is no png and that the token was invalid
+                    User u = PFEDatabase.getInstance(Application.getAppContext())
+                            .getUserDao()
+                            .getUserFromName(parameters.get("user")).get(0);
+                    String token = revalidateToken(u);
+                    parameters.put("token", token);
+                    return executeRequest(type, targetURL, parameters);
+                }
                 return new JSONObject().put("result", "OK").put("api", "POSTR");
             } else {
-                return parseJson(input);
+
+                final JSONObject res = parseJson(input);
+
+                if(res.get("result").equals("KO")) {
+
+                    User u = PFEDatabase.getInstance(Application.getAppContext())
+                            .getUserDao()
+                            .getUserFromName(parameters.get("user")).get(0);
+                    String token = revalidateToken(u);
+                    parameters.put("token", token);
+                    return executeRequest(type, targetURL, parameters);
+                }
+
+                return res;
             }
 
         } catch (IOException e) {
@@ -154,7 +199,7 @@ public class HttpUtils {
      * @param input The input stream
      * @param name  Name of the file, should contain the extension
      */
-    private static void parsePng(final InputStream input, String name) {
+    private static void parsePng(final InputStream input, String name) throws IOException {
         File file = new File(PATHFILE + name);
         FileOutputStream fos = null;
         try {
@@ -164,6 +209,7 @@ public class HttpUtils {
             fos.close();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Cannot generate png", e);
+            throw new IOException();
         }
     }
 

@@ -24,7 +24,7 @@ public interface UserDao {
     void delete(User... users);
 
     @Query("SELECT * FROM users WHERE isLogged = 1")
-    List<User> getLoggedUser();
+    User getLoggedUser();
 
     @Query("SELECT * FROM users WHERE name=:name")
     List<User> getUserFromName(String name);

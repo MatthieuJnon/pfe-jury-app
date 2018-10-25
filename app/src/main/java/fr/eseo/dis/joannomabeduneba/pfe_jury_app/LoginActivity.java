@@ -281,7 +281,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             , mUsername
                             , mPassword
                             , HttpUtils.requestFromJsonInfo(response, "descr")
-                            , HttpUtils.requestFromJsonInfo(response, "username")
+                            , HttpUtils.requestFromJsonInfo(response, "forename")
                             , HttpUtils.requestFromJsonInfo(response, "surname")
                             , true
                             , token);

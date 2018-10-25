@@ -6,14 +6,22 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.LinkedHashMap;
+
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
+
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
@@ -24,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
+        new UserLoadJuriesTask().execute();
     }
 
     @Override
@@ -79,4 +88,53 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
 
     }
+
+
+    public class UserLoadJuriesTask extends AsyncTask<Void, Void, Boolean> {
+
+
+        UserLoadJuriesTask() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            Log.w("INFO","LOADING JURIES TASK");
+            User user = PFEDatabase
+                        .getInstance(Application.getAppContext())
+                        .getUserDao()
+                        .getLoggedUser();
+
+            LinkedHashMap<String, String> params = new LinkedHashMap<>();
+            params.put("q", "LIPRJ");
+            params.put("user", user.getName());
+            params.put("token", user.getToken());
+
+            JSONObject res = HttpUtils.executeRequest("GET", HttpUtils.URL, params);
+
+            System.out.println(res);
+
+            if (HttpUtils.requestOK(res)) {
+                JSONArray projects;
+                try {
+                    projects = res.getJSONArray("projects");
+                } catch (JSONException e) {
+                    return false;
+                }
+
+                System.out.println(projects.length());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                return;
+            }
+        }
+
+    }
+
+
 }
