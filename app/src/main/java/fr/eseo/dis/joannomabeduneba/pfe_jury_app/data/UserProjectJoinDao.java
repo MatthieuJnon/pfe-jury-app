@@ -22,4 +22,8 @@ public interface UserProjectJoinDao {
             "user_project_join.userId=:uid")
     List<Project> getProjectsForUser(final int uid);
 
+
+    @Query("SELECT * FROM user_project_join WHERE userId=:uid AND projectId=:projectId")
+    UserProjectJoin getUserProjectJoin(final int uid, final int projectId);
+
 }

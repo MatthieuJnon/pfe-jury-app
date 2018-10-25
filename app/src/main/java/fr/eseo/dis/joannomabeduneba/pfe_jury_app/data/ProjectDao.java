@@ -17,6 +17,9 @@ public interface ProjectDao {
     @Query("SELECT * FROM projects WHERE projectId=:id")
     Project getProject(int id);
 
+    @Query("SELECT * FROM projects WHERE project=:title")
+    Project getProjectFromTitle(String title);
+
     @Insert
     void insert(Project... projects);
 

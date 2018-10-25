@@ -29,4 +29,7 @@ public interface UserDao {
     @Query("SELECT * FROM users WHERE name=:name")
     List<User> getUserFromName(String name);
 
+    @Query("SELECT * FROM users WHERE forename=:forename AND lastname=:lastname")
+    User getUserFromFullName(String forename, String lastname);
+
 }

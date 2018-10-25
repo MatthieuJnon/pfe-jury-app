@@ -16,10 +16,13 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.LinkedHashMap;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.UserProjectJoin;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
 
 
@@ -67,9 +70,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         @Override
         protected Boolean doInBackground(Void... params) {
             List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getAllUsers();
-
-            if( users != null ) {
-                for(User user : users){
+            if (users != null) {
+                for (User user : users) {
                     user.setLogged(false);
                     PFEDatabase.getInstance(Application.getAppContext()).getUserDao().update(user);
                 }
@@ -98,11 +100,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            Log.w("INFO","LOADING JURIES TASK");
+            Log.w("INFO", "LOADING JURIES TASK");
             User user = PFEDatabase
-                        .getInstance(Application.getAppContext())
-                        .getUserDao()
-                        .getLoggedUser();
+                    .getInstance(Application.getAppContext())
+                    .getUserDao()
+                    .getLoggedUser();
 
             LinkedHashMap<String, String> params = new LinkedHashMap<>();
             params.put("q", "LIPRJ");
@@ -110,8 +112,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             params.put("token", user.getToken());
 
             JSONObject res = HttpUtils.executeRequest("GET", HttpUtils.URL, params);
-
-            System.out.println(res);
 
             if (HttpUtils.requestOK(res)) {
                 JSONArray projects;
@@ -121,10 +121,102 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     return false;
                 }
 
-                System.out.println(projects.length());
+                for (int i = 0; i < projects.length(); i++) {
+                    JSONObject project;
+                    try {
+                        project = projects.getJSONObject(i);
+                        addProject(project);
+                    } catch (JSONException e) {
+                        Log.e("errAddProject", e.getMessage());
+                        continue;
+                    }
+
+                }
+
                 return true;
             }
             return false;
+        }
+
+        private void addProject(JSONObject project) throws JSONException {
+
+            Project p = PFEDatabase.getInstance(Application.getAppContext())
+                    .getProjectDao()
+                    .getProjectFromTitle(project.getString("title"));
+
+            if (p == null) {
+                Log.i("NEW PROJECT", project.getString("title"));
+
+                p = new Project(0,
+                        project.getString("title"),
+                        project.getInt("confid"),
+                        project.getString("descrip"));
+
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getProjectDao()
+                        .insert(p);
+                // We fetch the newly created project to get an up to date id
+                p = PFEDatabase.getInstance(Application.getAppContext())
+                        .getProjectDao()
+                        .getProjectFromTitle(project.getString("title"));
+            }
+
+            JSONObject supervisor = project.getJSONObject("supervisor");
+
+            User u = PFEDatabase.getInstance(Application.getAppContext())
+                    .getUserDao()
+                    .getUserFromFullName(supervisor.getString("forename"),
+                            supervisor.getString("surname"));
+
+
+            if (u == null) {
+                String username = formatName(supervisor.getString("surname"),
+                        supervisor.getString("forename"));
+                u = new User(0,
+                        username,
+                        null,
+                        "null",
+                        supervisor.getString("forename"),
+                        supervisor.getString("surname"),
+                        false,
+                        null);
+
+                Log.i("NEW USR", username);
+
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getUserDao()
+                        .insert(u);
+
+                // We fetch the newly created user to get an up to date id.
+                u = PFEDatabase.getInstance(Application.getAppContext())
+                        .getUserDao()
+                        .getUserFromName(username).get(0);
+
+            }
+
+            UserProjectJoin uPJ = PFEDatabase.getInstance(Application.getAppContext())
+                    .getUserProjectJoinDao()
+                    .getUserProjectJoin(u.getUid(), p.getProjectId());
+
+            if (uPJ == null) {
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getUserProjectJoinDao()
+                        .insert(new UserProjectJoin(u.getUid(),
+                                p.getProjectId(),
+                                null,
+                                true,
+                                false));
+            }
+
+        }
+
+        private String formatName(String lastname, String firstname) {
+            return lastname.substring(0,
+                    Math.min(lastname.length(), 5))
+                    .toLowerCase()
+                    .concat(firstname
+                            .substring(0, Math.min(firstname.length(), 3))
+                            .toLowerCase());
         }
 
         @Override
