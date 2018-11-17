@@ -17,7 +17,7 @@ public class Project {
 
     private String description;
 
-    public final Integer juryId;
+    private Integer juryId;
 
     public Project(int projectId,
                    @NonNull String project,
@@ -63,5 +63,13 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getJuryId() {
+        return this.juryId;
+    }
+
+    public void setJuryId(Integer id) {
+        this.juryId = id;
     }
 }

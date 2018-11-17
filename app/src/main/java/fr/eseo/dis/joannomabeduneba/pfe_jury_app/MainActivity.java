@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.gson.JsonObject;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -272,6 +274,29 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 j = PFEDatabase.getInstance(Application.getAppContext())
                         .getJuryDao()
                         .getJury(Integer.parseInt(jury.getString("idJury")));
+
+            }
+
+            JSONArray projects = jury.getJSONObject("info").getJSONArray("projects");
+
+            for (int i = 0; i < projects.length(); i++) {
+                JSONObject project;
+                try {
+                    project = projects.getJSONObject(i);
+                } catch (JSONException e) {
+                    Log.e("errAddProject2Jury", e.getMessage());
+                    continue;
+                }
+
+                Project p = PFEDatabase.getInstance(Application.getAppContext())
+                        .getProjectDao()
+                        .getProjectFromTitle(project.getString("title"));
+
+                p.setJuryId(j.juryId);
+
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getProjectDao()
+                        .update(p);
 
             }
 
