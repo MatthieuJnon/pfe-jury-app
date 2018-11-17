@@ -17,15 +17,19 @@ public class Project {
 
     private String description;
 
+    public final Integer juryId;
+
     public Project(int projectId,
                    @NonNull String project,
                    int confidentiality,
-                   String description)
+                   String description,
+                   final int juryId)
     {
         this.projectId = projectId;
         this.project = project;
         this.confidentiality = confidentiality;
         this.description = description;
+        this.juryId = juryId;
     }
 
     public int getProjectId() {

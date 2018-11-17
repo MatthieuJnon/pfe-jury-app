@@ -137,6 +137,11 @@ public class HttpUtils {
 
                 if(res.get("result").equals("KO")) {
 
+                    // If during logon, we dont want to retry
+                    if(res.get("api").equals("LOGON")) {
+                        return res;
+                    }
+
                     User u = PFEDatabase.getInstance(Application.getAppContext())
                             .getUserDao()
                             .getUserFromName(parameters.get("user")).get(0);

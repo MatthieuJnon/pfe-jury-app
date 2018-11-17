@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -19,6 +21,7 @@ import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Jury;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             params.put("user", user.getName());
             params.put("token", user.getToken());
 
+            // First we get all projects
             JSONObject res = HttpUtils.executeRequest("GET", HttpUtils.URL, params);
 
             if (HttpUtils.requestOK(res)) {
@@ -133,8 +137,37 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                 }
 
-                return true;
             }
+
+            // Then we get all juries that the connected user is a member of
+            params = new LinkedHashMap<>();
+            params.put("q", "MYJUR");
+            params.put("user", user.getName());
+            params.put("token", user.getToken());
+
+            res = HttpUtils.executeRequest("GET", HttpUtils.URL, params);
+
+            if(HttpUtils.requestOK(res)) {
+                JSONArray juries;
+                try {
+                    juries = res.getJSONArray("juries");
+                } catch (JSONException e) {
+                    Log.e("err getting jurys array", e.getMessage());
+                    return false;
+                }
+
+                for (int i = 0; i < juries.length(); i++) {
+                    JSONObject jury;
+                    try {
+                        jury = juries.getJSONObject(i);
+                        addJury(jury);
+                    } catch (JSONException e) {
+                        Log.e("errAddJury", e.getMessage());
+                        continue;
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -150,7 +183,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 p = new Project(0,
                         project.getString("title"),
                         project.getInt("confid"),
-                        project.getString("descrip"));
+                        project.getString("descrip"),
+                        0);
 
                 PFEDatabase.getInstance(Application.getAppContext())
                         .getProjectDao()
@@ -208,6 +242,40 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                                 false));
             }
 
+        }
+
+        private void addJury(JSONObject jury) throws JSONException {
+            // Add jury
+
+            Jury j = PFEDatabase.getInstance(Application.getAppContext())
+                    .getJuryDao()
+                    .getJury(Integer.parseInt(jury.getString("idJury")));
+
+            if (j == null) {
+                Log.i("NEW JURY", jury.getString("idJury"));
+
+                String dateString = jury.getString("date");
+
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, Integer.parseInt(dateString.substring(0,4)));
+                cal.set(Calendar.MONTH, Integer.parseInt(dateString.substring(5,7)));
+                cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateString.substring(8,10)));
+                Date date = cal.getTime();
+
+                j = new Jury( Integer.parseInt(jury.getString("idJury")),
+                        date);
+
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getJuryDao()
+                        .insert(j);
+
+                j = PFEDatabase.getInstance(Application.getAppContext())
+                        .getJuryDao()
+                        .getJury(Integer.parseInt(jury.getString("idJury")));
+
+            }
+
+            // fetch all projects from jury and update them with jury id
         }
 
         private String formatName(String lastname, String firstname) {
