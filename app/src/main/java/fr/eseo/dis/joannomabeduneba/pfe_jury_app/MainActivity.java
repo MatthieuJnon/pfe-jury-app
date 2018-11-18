@@ -40,6 +40,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     private DrawerLayout mDrawerLayout;
+    private View mProgressView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         new UserLoadJuriesTask().execute();
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mProgressView = findViewById(R.id.progress);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         menuItem.setChecked(true);
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
+                        showProgress(true);
 
                         switch (menuItem.getItemId()){
                             case R.id.nav_projects:
@@ -107,6 +110,32 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         return false;
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
 
@@ -398,6 +427,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         @Override
         protected void onPostExecute(Boolean success) {
+            showProgress(false);
             if(success){
                 Intent myIntent = new Intent(MainActivity.this, ProjectActivity.class);
                 myIntent.putExtra("project", mProject);
@@ -407,6 +437,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         @Override
         protected void onCancelled() {
+            showProgress(false);
         }
     }
 
