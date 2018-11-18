@@ -10,18 +10,41 @@
 
         <TextView
             android:id="@+id/titleView"
-            android:textSize="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle = "bold"
-            android:scrollbars = "vertical" />
+            android:scrollbars="vertical"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
 
         <TextView
             android:id="@+id/descView"
-            android:layout_marginTop="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars = "vertical" />
+            android:layout_marginTop="8dp"
+            android:scrollbars="vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="15sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Grade :"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/gradeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Evaluate the project"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+
 
         <ImageView
             android:id="@+id/posterView"
