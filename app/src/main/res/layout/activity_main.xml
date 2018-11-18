@@ -14,6 +14,13 @@
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp" />
+
     <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
     <FrameLayout
         android:id="@+id/content_frame"
