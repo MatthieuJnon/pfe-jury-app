@@ -134,7 +134,7 @@ public class HttpUtils {
                             .getUserFromName(parameters.get("user")).get(0);
                     String token = revalidateToken(u);
                     parameters.put("token", token);
-                    return executeRequest(type, targetURL, parameters);
+                    return executeRequest(type, targetURL, parameters, true);
                 }
                 Log.i("POSTER LOADED", "Ok");
                 return new JSONObject().put("result", "OK").put("api", "POSTR");

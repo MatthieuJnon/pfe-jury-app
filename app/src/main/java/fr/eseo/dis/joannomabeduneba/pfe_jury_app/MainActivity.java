@@ -16,7 +16,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +35,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.adapters.JuryAdapter;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Jury;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
@@ -43,6 +46,9 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
+    private RecyclerView mRecyclerView;
+    private JuryAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
     private DrawerLayout mDrawerLayout;
     private View mProgressView;
 
@@ -51,6 +57,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         new UserLoadJuriesTask().execute();
+
+        mRecyclerView = findViewById(R.id.recyclerView);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new JuryAdapter(this);
+        mRecyclerView.setAdapter(mAdapter);
+
+
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mProgressView = findViewById(R.id.progress);
@@ -89,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     }
                 });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -245,7 +260,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 }
             }
 
-            return false;
+            mAdapter.setJuries(PFEDatabase.getInstance(Application.getAppContext())
+                    .getJuryDao()
+                    .getAllJuries());
+
+            return true;
         }
 
         private void addProject(JSONObject project) throws JSONException {
@@ -316,7 +335,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                                 p.getProjectId(),
                                 null,
                                 true,
-                                false));
+                                false,
+                                null));
             }
 
         }
@@ -390,6 +410,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
+                mAdapter.notifyDataSetChanged();
                 return;
             }
         }
