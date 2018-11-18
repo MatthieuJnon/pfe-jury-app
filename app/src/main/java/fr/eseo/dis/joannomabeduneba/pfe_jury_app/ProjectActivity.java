@@ -12,21 +12,30 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.adapters.StudentsAdapter;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 
-public class ProjectActivity extends AppCompatActivity {
-
+public class ProjectActivity extends AppCompatActivity implements MyMediatorInterface {
 
     private final static int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+
+    private StudentsAdapter mAdapter;
+    private List<User> usersList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +57,9 @@ public class ProjectActivity extends AppCompatActivity {
 
         TextView descView = findViewById(R.id.descView);
         descView.append(project.getDescription());
+
+        LoadStudentsTask loadStudentsTask = new LoadStudentsTask(project.getProjectId());
+        loadStudentsTask.execute();
 
         final TextView textView = findViewById(R.id.gradeView);
         textView.setOnKeyListener(new View.OnKeyListener() {
@@ -93,28 +105,50 @@ public class ProjectActivity extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    public void userItemClick(int pos) {
+        Toast.makeText(this, "Clicked User : " + usersList.get(pos).getForename() + " " + usersList.get(pos).getLastname(), Toast.LENGTH_SHORT).show();
+    }
+
     public boolean isNumeric(String s) {
         return s != null && s.matches("[-+]?\\d*\\.?\\d+");
     }
 
 
 
-//    public class LoadProjectTask extends AsyncTask<Void, Void, String> {
-//
-//        @Override
-//        protected String doInBackground(Void... params) {
-//
-//        }
-//
-//
-//        @Override
-//        protected void onPostExecute(String name) {
-//
-//        }
-//
-//        @Override
-//        protected void onCancelled() {
-//
-//        }
-//    }
+    public class LoadStudentsTask extends AsyncTask<Void, Void, Boolean> {
+
+        private int projectId;
+
+        public LoadStudentsTask(int projectId) {
+            this.projectId = projectId;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            usersList = PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().getStudentsForProject(projectId);
+
+            System.out.println(usersList);
+
+            RecyclerView recyclerView = findViewById(R.id.recyclerView);
+            recyclerView.setHasFixedSize(true);
+
+            mAdapter = new StudentsAdapter(new ArrayList<>(usersList), ProjectActivity.this);
+            recyclerView.setAdapter(mAdapter);
+
+            return usersList != null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+
+        }
+
+        @Override
+        protected void onCancelled() {
+
+        }
+    }
 }

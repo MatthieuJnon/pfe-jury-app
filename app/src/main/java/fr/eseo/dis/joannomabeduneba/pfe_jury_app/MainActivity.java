@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         mRecyclerView.setAdapter(mAdapter);
 
 
-
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mProgressView = findViewById(R.id.progress);
 
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         mDrawerLayout.closeDrawers();
                         showProgress(true);
 
-                        switch (menuItem.getItemId()){
+                        switch (menuItem.getItemId()) {
                             case R.id.nav_projects:
                                 LoadProjectTask projectTask = new LoadProjectTask(2);
                                 projectTask.execute((Void) null);
@@ -185,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 finish();
             }
         }
-            }
+    }
 
 
     public class UserLoadJuriesTask extends AsyncTask<Void, Void, Boolean> {
@@ -240,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
             res = HttpUtils.executeRequest("GET", HttpUtils.URL, params);
 
-            if(HttpUtils.requestOK(res)) {
+            if (HttpUtils.requestOK(res)) {
                 JSONArray juries;
                 try {
                     juries = res.getJSONArray("juries");
@@ -290,6 +289,23 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 p = PFEDatabase.getInstance(Application.getAppContext())
                         .getProjectDao()
                         .getProjectFromTitle(project.getString("title"));
+
+                for (int i = 0; i < project.getJSONArray("students").length(); i++) {
+                    JSONObject jsonObject = (JSONObject) project.getJSONArray("students").get(i);
+                    User user = new User(jsonObject.getInt("userId"),
+                            jsonObject.getString("forename") + jsonObject.getString("lastname"),
+                            null,
+                            null,
+                            jsonObject.getString("forename"),
+                            jsonObject.getString("lastname"),
+                            false,
+                            null);
+
+                    UserProjectJoin userProjectJoin = new UserProjectJoin(user.getUid(), p.getProjectId(), null, false, true, null);
+                    PFEDatabase.getInstance(Application.getAppContext())
+                            .getUserProjectJoinDao()
+                            .insert(userProjectJoin);
+                }
             }
 
             JSONObject supervisor = project.getJSONObject("supervisor");
@@ -355,12 +371,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 String dateString = jury.getString("date");
 
                 Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, Integer.parseInt(dateString.substring(0,4)));
-                cal.set(Calendar.MONTH, Integer.parseInt(dateString.substring(5,7)));
-                cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateString.substring(8,10)));
+                cal.set(Calendar.YEAR, Integer.parseInt(dateString.substring(0, 4)));
+                cal.set(Calendar.MONTH, Integer.parseInt(dateString.substring(5, 7)));
+                cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateString.substring(8, 10)));
                 Date date = cal.getTime();
 
-                j = new Jury( Integer.parseInt(jury.getString("idJury")),
+                j = new Jury(Integer.parseInt(jury.getString("idJury")),
                         date);
 
                 PFEDatabase.getInstance(Application.getAppContext())
@@ -440,15 +456,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         public LoadProjectTask(int idProject) {
             this.idProject = idProject;
-         }
+        }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1);
             }
 
             User user = PFEDatabase
@@ -467,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             parameters.put("proj", String.valueOf(mProject.getProjectId()));
             parameters.put("token", user.getToken());
 
-            JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters,true);
+            JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters, true);
 
             return HttpUtils.requestOK(response);
         }
@@ -476,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         @Override
         protected void onPostExecute(Boolean success) {
             showProgress(false);
-            if(success){
+            if (success) {
                 Intent myIntent = new Intent(MainActivity.this, ProjectActivity.class);
                 myIntent.putExtra("project", mProject);
                 startActivity(myIntent);
