@@ -21,16 +21,19 @@ public class UserProjectJoin {
     public final String annotation;
     public final boolean isSupervisor;
     public final boolean isStudent;
+    public String note;
 
     public UserProjectJoin(final int userId,
                            final int projectId,
                            final String annotation,
                            final boolean isSupervisor,
-                           final boolean isStudent) {
+                           final boolean isStudent,
+                           final String note) {
         this.userId = userId;
         this.projectId = projectId;
         this.annotation = annotation;
         this.isSupervisor = isSupervisor;
         this.isStudent = isStudent;
+        this.note = note;
     }
 }
