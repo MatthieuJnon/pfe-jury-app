@@ -34,6 +34,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
@@ -249,7 +250,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, String> {
 
         private final String mUsername;
         private final String mPassword;
@@ -260,7 +261,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
             parameters.put("q", "LOGON");
             parameters.put("user", mUsername);
@@ -299,20 +300,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     .insert(user);
                         }
                     }
+
+                    return user.getForename() + " " + user.getLastname();
                 }
             }
-
-            return HttpUtils.requestOK(response);
+            return null;
         }
 
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(String name) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (name != null) {
                 Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+                myIntent.putExtra("name", name);
                 LoginActivity.this.startActivity(myIntent);
                 finish();
             } else {
