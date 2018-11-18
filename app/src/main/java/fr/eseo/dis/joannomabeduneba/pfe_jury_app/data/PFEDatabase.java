@@ -14,7 +14,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.Converters;
         UserProjectJoin.class,
         Jury.class,
         UserJuryJoin.class
-}, version = 9)
+}, version = 10)
 @TypeConverters({Converters.class})
 public abstract class PFEDatabase extends RoomDatabase {
 

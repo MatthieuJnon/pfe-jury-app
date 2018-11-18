@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             if (p == null) {
                 Log.i("NEW PROJECT", project.getString("title"));
 
-                p = new Project(0,
+                p = new Project(project.getInt("projectId"),
                         project.getString("title"),
                         project.getInt("confid"),
                         project.getString("descrip"),

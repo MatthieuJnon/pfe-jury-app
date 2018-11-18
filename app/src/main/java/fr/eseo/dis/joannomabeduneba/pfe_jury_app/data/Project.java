@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Entity(tableName = "projects")
 public class Project implements Serializable {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     private int projectId;
 
     @NonNull
