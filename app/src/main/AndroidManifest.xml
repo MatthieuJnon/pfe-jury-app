@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.eseo.dis.joannomabeduneba.pfe_jury_app">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
 
     <application
-        android:name="fr.eseo.dis.joannomabeduneba.pfe_jury_app.Application"
+        android:name=".Application"
         android:allowBackup="true"
         android:icon="@mipmap/eseo_launcher"
         android:label="@string/app_name"
@@ -16,15 +20,16 @@
             android:label="@string/app_name">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
-
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
+        <activity android:name=".ProjectActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.common.io.ByteStreams;
@@ -130,6 +131,7 @@ public class HttpUtils {
                     parameters.put("token", token);
                     return executeRequest(type, targetURL, parameters);
                 }
+                Log.i("POSTER LOADED", "Ok");
                 return new JSONObject().put("result", "OK").put("api", "POSTR");
             } else {
 
@@ -205,10 +207,14 @@ public class HttpUtils {
      * @param name  Name of the file, should contain the extension
      */
     private static void parsePng(final InputStream input, String name) throws IOException {
-        File file = new File(PATHFILE + name);
-        FileOutputStream fos = null;
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File file = new File(path, name);
+
         try {
-            fos = new FileOutputStream(file);
+            // Make sure the Pictures directory exists.
+            path.mkdirs();
+            FileOutputStream fos = new FileOutputStream(file);
             fos.write(ByteStreams.toByteArray(input));
             fos.flush();
             fos.close();

@@ -1,7 +1,11 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,8 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,17 +20,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Jury;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
@@ -68,8 +67,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
+                        switch (menuItem.getItemId()){
+                            case R.id.nav_projects:
+                                LoadProjectTask projectTask = new LoadProjectTask(2);
+                                projectTask.execute((Void) null);
+                                break;
+                            case R.id.nav_juries:
+
+                                break;
+                        }
+
 
                         return true;
                     }
@@ -129,8 +136,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 finish();
             }
         }
-
-    }
+            }
 
 
     public class UserLoadJuriesTask extends AsyncTask<Void, Void, Boolean> {
@@ -354,7 +360,54 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 return;
             }
         }
+    }
 
+
+    private class LoadProjectTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Project mProject;
+        private int idProject;
+
+        public LoadProjectTask(int idProject) {
+            this.idProject = idProject;
+         }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            User user = PFEDatabase
+                    .getInstance(Application.getAppContext())
+                    .getUserDao()
+                    .getLoggedUser();
+
+            mProject = PFEDatabase
+                    .getInstance(Application.getAppContext())
+                    .getProjectDao()
+                    .getProject(idProject);
+
+            LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+            parameters.put("q", "POSTR");
+            parameters.put("user", user.getName());
+            parameters.put("proj", String.valueOf(mProject.getProjectId()));
+            parameters.put("token", user.getToken());
+
+            JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters,true);
+
+            return HttpUtils.requestOK(response);
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if(success){
+                Intent myIntent = new Intent(MainActivity.this, ProjectActivity.class);
+                myIntent.putExtra("project", mProject);
+                startActivity(myIntent);
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+        }
     }
 
 
