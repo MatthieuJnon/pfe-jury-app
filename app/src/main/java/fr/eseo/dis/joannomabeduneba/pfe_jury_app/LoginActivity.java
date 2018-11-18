@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -269,6 +270,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters);
 
+            Log.i("Request login", mUsername);
+
             if (HttpUtils.requestOK(response)) {
                 parameters = new LinkedHashMap<>();
                 parameters.put("q", "MYINF");
@@ -276,6 +279,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 String token = HttpUtils.requestFromJson(response, "token");
                 parameters.put("token", token);
                 response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters);
+
+                Log.i("Request details", mUsername);
 
                 if (HttpUtils.requestOK(response)) {
                     User user = new User(0
@@ -290,9 +295,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     List<User> users = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getUserFromName(mUsername);
 
                     if( users != null ){
+                        Log.i("List users", users.toString());
+                        Log.i("New user", user.toString());
                         if(!users.isEmpty()){
+                            users.get(0).setForename(user.getForename());
+                            users.get(0).setLastname(user.getLastname());
                             users.get(0).setLogged(true);
+                            users.get(0).setName(user.getName());
+                            users.get(0).setPassword(user.getPassword());
+                            users.get(0).setToken(user.getToken());
                             PFEDatabase.getInstance(Application.getAppContext()).getUserDao().update(users.get(0));
+                            System.out.println( PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getUserFromName(mUsername));
                         } else {
                             PFEDatabase
                                     .getInstance(Application.getAppContext())
