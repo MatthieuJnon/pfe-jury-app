@@ -40,6 +40,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Jury;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.UserJuryJoin;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.UserProjectJoin;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils.HttpUtils;
 
@@ -261,8 +262,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
 
             mAdapter.setJuries(PFEDatabase.getInstance(Application.getAppContext())
-                    .getJuryDao()
-                    .getAllJuries());
+                    .getUserJuryJoinDao()
+                    .getJuriesForUser(user.getUid()));
 
             return true;
         }
@@ -371,6 +372,21 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         .getJury(Integer.parseInt(jury.getString("idJury")));
 
             }
+
+            User u = PFEDatabase.getInstance(Application.getAppContext())
+                    .getUserDao()
+                    .getLoggedUser();
+
+            UserJuryJoin uJJ = PFEDatabase.getInstance(Application.getAppContext())
+                    .getUserJuryJoinDao()
+                    .getUserJuryJoin(u.getUid(), j.juryId);
+
+            if (uJJ == null) {
+                PFEDatabase.getInstance(Application.getAppContext())
+                        .getUserJuryJoinDao()
+                        .insert(new UserJuryJoin(u.getUid(), j.juryId));
+            }
+
 
             JSONArray projects = jury.getJSONObject("info").getJSONArray("projects");
 

@@ -22,4 +22,7 @@ public interface UserJuryJoinDao {
             "user_jury_join.userId=:uid")
     List<Jury> getJuriesForUser(final int uid);
 
+    @Query("SELECT * FROM user_jury_join WHERE userId=:uid AND juryId=:juryId")
+    UserJuryJoin getUserJuryJoin(final int uid, final int juryId);
+
 }
