@@ -1,6 +1,10 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.utils;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.common.io.ByteStreams;
@@ -37,6 +41,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.Application;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectActivity;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
