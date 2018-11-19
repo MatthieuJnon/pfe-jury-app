@@ -89,6 +89,11 @@ public class ProjectsActivity extends AppCompatActivity implements PopupMenu.OnM
                                 projectTask.execute((Void) null);
                                 break;
                             case R.id.nav_juries:
+                                Intent myIntent = new Intent(ProjectsActivity.this, MainActivity.class);
+                                startActivity(myIntent);
+
+                                break;
+                            case R.id.nav_all_projects:
 
                                 break;
                         }
