@@ -16,5 +16,6 @@
 
     <string name="projects">"Projects"</string>
     <string name="juries">"Juries"</string>
+    <string name="all_projects">All Projects</string>
 
 </resources>

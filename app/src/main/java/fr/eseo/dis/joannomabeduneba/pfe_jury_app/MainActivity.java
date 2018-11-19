@@ -98,6 +98,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             case R.id.nav_juries:
 
                                 break;
+                            case R.id.nav_all_projects:
+                                Intent myIntent = new Intent(MainActivity.this, ProjectsActivity.class);
+                                startActivity(myIntent);
+
+                                break;
                         }
 
 
