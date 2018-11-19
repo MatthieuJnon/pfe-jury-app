@@ -2,6 +2,7 @@ package fr.eseo.dis.joannomabeduneba.pfe_jury_app;
 
 import android.Manifest;
 import android.arch.persistence.room.util.StringUtil;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,13 +11,16 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +42,9 @@ public class ProjectActivity extends AppCompatActivity {
 
     private TextView gradeView;
     private StudentsAdapter mAdapter;
+    private int projectId;
     private List<User> usersList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,7 @@ public class ProjectActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         final Project project = (Project) intent.getSerializableExtra("project");
-
+        projectId = project.getProjectId();
         TextView titleView = findViewById(R.id.titleView);
         titleView.append(project.getProject());
 
@@ -110,8 +116,38 @@ public class ProjectActivity extends AppCompatActivity {
         }
     }
 
-    public void userItemClick(int pos) {
-        Toast.makeText(this, "Clicked User : " + usersList.get(pos).getForename() + " " + usersList.get(pos).getLastname(), Toast.LENGTH_SHORT).show();
+    public void userItemClick(final int pos) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Evaluation");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                PutGradeTask putGradeTask = new PutGradeTask(projectId, Integer.parseInt(input.getText().toString()));
+                putGradeTask.setUserId(usersList.get(pos).getUid());
+                putGradeTask.execute();
+
+                RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                recyclerView.setHasFixedSize(true);
+
+                LinearLayoutManager layoutManager = new LinearLayoutManager(ProjectActivity.this);
+                recyclerView.setLayoutManager(layoutManager);
+
+                mAdapter = new StudentsAdapter(new ArrayList<>(usersList), projectId,  ProjectActivity.this);
+                recyclerView.setAdapter(mAdapter);
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     public boolean isNumeric(String s) {
@@ -138,7 +174,7 @@ public class ProjectActivity extends AppCompatActivity {
             LinearLayoutManager layoutManager = new LinearLayoutManager(ProjectActivity.this);
             recyclerView.setLayoutManager(layoutManager);
 
-            mAdapter = new StudentsAdapter(new ArrayList<>(usersList), ProjectActivity.this);
+            mAdapter = new StudentsAdapter(new ArrayList<>(usersList), projectId,  ProjectActivity.this);
             recyclerView.setAdapter(mAdapter);
 
             return usersList != null;
@@ -159,6 +195,7 @@ public class ProjectActivity extends AppCompatActivity {
     public class PutGradeTask extends AsyncTask<Void, Void, Boolean> {
 
         private int projectId;
+        private Integer userId;
         private Integer grade;
 
         public PutGradeTask(int projectId, Integer grade) {
@@ -166,13 +203,20 @@ public class ProjectActivity extends AppCompatActivity {
             this.grade = grade;
         }
 
+        public void setUserId(Integer userId){
+            this.userId = userId;
+        }
+
         @Override
         protected Boolean doInBackground(Void... params) {
-            User user = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getLoggedUser();
-            UserProjectJoin project = PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().getUserProjectJoin(user.getUid(), projectId);
+            if(userId == null){
+                User user = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getLoggedUser();
+                userId = user.getUid();
+            }
+            UserProjectJoin project = PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().getUserProjectJoin(userId, projectId);
 
             if(project == null){
-                project = new UserProjectJoin(user.getUid(), projectId, null, true, false, null);
+                project = new UserProjectJoin(userId, projectId, null, true, false, null);
                 PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().insert(project);
             }
 
