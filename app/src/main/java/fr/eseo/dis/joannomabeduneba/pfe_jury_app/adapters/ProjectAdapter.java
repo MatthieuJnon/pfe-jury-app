@@ -11,11 +11,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectActivity;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectsActivity;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder>{
+
+    private ProjectsActivity activity;
 
     private final Context context;
 
@@ -23,6 +27,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     public ProjectAdapter(Context context) {
         this.context = context;
+        this.activity = (ProjectsActivity) context;
         projects = new ArrayList<>();
     }
 
@@ -36,9 +41,16 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     @Override
     public void onBindViewHolder(@NonNull ProjectViewHolder projectViewHolder, int i) {
-        Project project = projects.get(i);
+        final Project project = projects.get(i);
         projectViewHolder.projectName.setText(project.getProject());
         projectViewHolder.projectDescrip.setText(project.getDescription());
+
+        projectViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.clickProject(project);
+            }
+        });
     }
 
     @Override

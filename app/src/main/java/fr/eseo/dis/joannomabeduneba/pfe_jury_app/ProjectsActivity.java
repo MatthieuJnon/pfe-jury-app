@@ -84,10 +84,6 @@ public class ProjectsActivity extends AppCompatActivity implements PopupMenu.OnM
                         showProgress(true);
 
                         switch (menuItem.getItemId()) {
-                            case R.id.nav_projects:
-                                ProjectsActivity.LoadProjectTask projectTask = new ProjectsActivity.LoadProjectTask(2);
-                                projectTask.execute((Void) null);
-                                break;
                             case R.id.nav_juries:
                                 Intent myIntent = new Intent(ProjectsActivity.this, MainActivity.class);
                                 startActivity(myIntent);
@@ -114,6 +110,12 @@ public class ProjectsActivity extends AppCompatActivity implements PopupMenu.OnM
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.kebab_menu, menu);
         return true;
+    }
+
+    public void clickProject(Project p) {
+        showProgress(true);
+        LoadProjectTask projectTask = new LoadProjectTask(p.getProjectId());
+        projectTask.execute((Void) null);
     }
 
     /**
