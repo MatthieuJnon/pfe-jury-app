@@ -10,32 +10,26 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:orientation="vertical"
-        android:background="@color/lightBlue">
+        android:background="@color/orange">
+
 
         <TextView
-            android:id="@+id/jury"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Jury :" />
-
-        <TextView
-            android:id="@+id/jury_name"
+            android:id="@+id/project_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:minLines="1"
             android:padding="5dp"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/jury_date"
+            android:id="@+id/project_descrip"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:padding="5dp"
-            android:textAlignment="textEnd"
+            android:textAlignment="textStart"
             android:textSize="14sp" />
 
 

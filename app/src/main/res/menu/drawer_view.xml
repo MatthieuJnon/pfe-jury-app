@@ -5,6 +5,9 @@
             android:id="@+id/nav_projects"
             android:title="@string/projects" />
         <item
+            android:id="@+id/nav_all_projects"
+            android:title="@string/all_projects" />
+        <item
             android:id="@+id/nav_juries"
             android:title="@string/juries" />
     </group>
