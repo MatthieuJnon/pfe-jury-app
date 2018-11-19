@@ -290,16 +290,33 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         .getProjectDao()
                         .getProjectFromTitle(project.getString("title"));
 
+                System.out.println("LENGHT : " + project.getJSONArray("students").length());
+
                 for (int i = 0; i < project.getJSONArray("students").length(); i++) {
                     JSONObject jsonObject = (JSONObject) project.getJSONArray("students").get(i);
-                    User user = new User(jsonObject.getInt("userId"),
-                            jsonObject.getString("forename") + jsonObject.getString("lastname"),
+
+                    String username = formatName(jsonObject.getString("surname"),
+                            jsonObject.getString("forename"));
+
+                    User user = new User(0,
+                            username,
                             null,
-                            null,
+                            "null",
                             jsonObject.getString("forename"),
-                            jsonObject.getString("lastname"),
+                            jsonObject.getString("surname"),
                             false,
                             null);
+
+                    Log.i("NEW USR", username);
+
+                    PFEDatabase.getInstance(Application.getAppContext())
+                            .getUserDao()
+                            .insert(user);
+
+                    // We fetch the newly created user to get an up to date id.
+                    user = PFEDatabase.getInstance(Application.getAppContext())
+                            .getUserDao()
+                            .getUserFromName(username).get(0);
 
                     UserProjectJoin userProjectJoin = new UserProjectJoin(user.getUid(), p.getProjectId(), null, false, true, null);
                     PFEDatabase.getInstance(Application.getAppContext())

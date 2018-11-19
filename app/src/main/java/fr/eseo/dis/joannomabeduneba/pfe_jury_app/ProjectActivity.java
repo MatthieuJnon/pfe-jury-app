@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
@@ -30,7 +31,7 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
 
-public class ProjectActivity extends AppCompatActivity implements MyMediatorInterface {
+public class ProjectActivity extends AppCompatActivity {
 
     private final static int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 
@@ -105,8 +106,6 @@ public class ProjectActivity extends AppCompatActivity implements MyMediatorInte
         }
     }
 
-
-    @Override
     public void userItemClick(int pos) {
         Toast.makeText(this, "Clicked User : " + usersList.get(pos).getForename() + " " + usersList.get(pos).getLastname(), Toast.LENGTH_SHORT).show();
     }
@@ -129,10 +128,11 @@ public class ProjectActivity extends AppCompatActivity implements MyMediatorInte
         protected Boolean doInBackground(Void... params) {
             usersList = PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().getStudentsForProject(projectId);
 
-            System.out.println(usersList);
-
             RecyclerView recyclerView = findViewById(R.id.recyclerView);
             recyclerView.setHasFixedSize(true);
+
+            LinearLayoutManager layoutManager = new LinearLayoutManager(ProjectActivity.this);
+            recyclerView.setLayoutManager(layoutManager);
 
             mAdapter = new StudentsAdapter(new ArrayList<>(usersList), ProjectActivity.this);
             recyclerView.setAdapter(mAdapter);

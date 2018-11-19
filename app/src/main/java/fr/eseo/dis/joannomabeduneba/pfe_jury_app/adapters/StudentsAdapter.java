@@ -52,7 +52,7 @@ public class StudentsAdapter extends RecyclerView.Adapter<StudentsAdapter.MyView
 
         User currentUser = mUsersList.get(position);
 
-        holder.TvName.setText(currentUser.getForename() + currentUser.getLastname());
+        holder.TvName.setText(currentUser.getForename() + " " + currentUser.getLastname());
 
     }
 
