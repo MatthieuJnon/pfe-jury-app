@@ -91,10 +91,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         showProgress(true);
 
                         switch (menuItem.getItemId()) {
-                            case R.id.nav_projects:
-                                LoadProjectTask projectTask = new LoadProjectTask(2);
-                                projectTask.execute((Void) null);
-                                break;
                             case R.id.nav_juries:
 
                                 break;
@@ -469,64 +465,5 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         }
     }
-
-
-    private class LoadProjectTask extends AsyncTask<Void, Void, Boolean> {
-
-        private Project mProject;
-        private int idProject;
-
-        public LoadProjectTask(int idProject) {
-            this.idProject = idProject;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1);
-            }
-
-            User user = PFEDatabase
-                    .getInstance(Application.getAppContext())
-                    .getUserDao()
-                    .getLoggedUser();
-
-            mProject = PFEDatabase
-                    .getInstance(Application.getAppContext())
-                    .getProjectDao()
-                    .getProject(idProject);
-
-            LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
-            parameters.put("q", "POSTR");
-            parameters.put("user", user.getName());
-            parameters.put("proj", String.valueOf(mProject.getProjectId()));
-            parameters.put("token", user.getToken());
-
-            JSONObject response = HttpUtils.executeRequest("GET", HttpUtils.URL, parameters, true);
-
-            return HttpUtils.requestOK(response);
-        }
-
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            showProgress(false);
-            if (success) {
-                Intent myIntent = new Intent(MainActivity.this, ProjectActivity.class);
-                myIntent.putExtra("project", mProject);
-                startActivity(myIntent);
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            showProgress(false);
-        }
-    }
-
 
 }

@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:orientation="vertical"
-        android:background="@color/orange">
+        android:background="@color/lightBlue">
 
 
         <TextView
@@ -20,7 +20,7 @@
             android:maxLines="2"
             android:minLines="1"
             android:padding="5dp"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/orange"
             android:textSize="18sp" />
 
         <TextView
