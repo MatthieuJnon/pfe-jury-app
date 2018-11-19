@@ -18,4 +18,6 @@
     <string name="juries">"Juries"</string>
     <string name="all_projects">All Projects</string>
 
+    <string name="click_to_view_jury">tap card to view jury\'s projects</string>
+
 </resources>

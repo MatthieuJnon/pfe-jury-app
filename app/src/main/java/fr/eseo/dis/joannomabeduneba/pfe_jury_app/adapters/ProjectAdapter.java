@@ -1,5 +1,6 @@
 package fr.eseo.dis.joannomabeduneba.pfe_jury_app.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +14,14 @@ import java.util.List;
 
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectActivity;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectsActivity;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.ProjectsFromJuriesActivity;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder>{
 
-    private ProjectsActivity activity;
+    private Activity activity;
 
     private final Context context;
 
@@ -27,7 +29,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     public ProjectAdapter(Context context) {
         this.context = context;
-        this.activity = (ProjectsActivity) context;
+        this.activity = (Activity) context;
         projects = new ArrayList<>();
     }
 
@@ -48,7 +50,13 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         projectViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.clickProject(project);
+                if(activity.getClass() == ProjectsActivity.class) {
+                    ProjectsActivity act = (ProjectsActivity) activity;
+                    act.clickProject(project);
+                } else {
+                    ProjectsFromJuriesActivity act = (ProjectsFromJuriesActivity) activity;
+                    act.clickProject(project);
+                }
             }
         });
     }

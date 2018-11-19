@@ -11,10 +11,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.MainActivity;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.R;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Jury;
 
 public class JuryAdapter extends RecyclerView.Adapter<JuryAdapter.JuryViewHolder>{
+
+    private MainActivity activity;
 
     private final Context context;
 
@@ -22,6 +25,7 @@ public class JuryAdapter extends RecyclerView.Adapter<JuryAdapter.JuryViewHolder
 
     public JuryAdapter(Context context) {
         this.context = context;
+        this.activity = (MainActivity) context;
         juries = new ArrayList<>();
     }
 
@@ -35,9 +39,16 @@ public class JuryAdapter extends RecyclerView.Adapter<JuryAdapter.JuryViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull JuryViewHolder juryViewHolder, int i) {
-        Jury jury = juries.get(i);
+        final Jury jury = juries.get(i);
         juryViewHolder.idJury.setText(Integer.toString(jury.juryId));
         juryViewHolder.dateJury.setText(jury.date.toString());
+
+        juryViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.clickJury(jury);
+            }
+        });
     }
 
     @Override
