@@ -30,6 +30,17 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/jury_tap_here"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:minLines="1"
+            android:padding="5dp"
+            android:text="@string/click_to_view_jury"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="18sp" />
+
+        <TextView
             android:id="@+id/jury_date"
             android:layout_width="match_parent"
             android:layout_height="0dp"

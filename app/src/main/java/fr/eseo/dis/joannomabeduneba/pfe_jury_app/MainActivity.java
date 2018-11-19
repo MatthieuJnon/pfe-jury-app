@@ -114,6 +114,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         return true;
     }
 
+    public void clickJury(Jury j) {
+        Intent myIntent = new Intent(MainActivity.this, ProjectsFromJuriesActivity.class);
+        myIntent.putExtra("jury", j);
+        startActivity(myIntent);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
