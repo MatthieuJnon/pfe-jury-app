@@ -3,6 +3,7 @@ package fr.eseo.dis.joannomabeduneba.pfe_jury_app.data;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +14,13 @@ public interface UserProjectJoinDao {
     @Insert
     void insert(UserProjectJoin userProjectJoin);
 
-    @Query("SELECT * FROM users INNER JOIN user_project_join ON " +
-            "users.uid=user_project_join.userId WHERE " +
-            "user_project_join.projectId=:projectId")
-    List<User> getUsersForProject(final int projectId);
+    @Update
+    void update(UserProjectJoin userProjectJoin);
 
     @Query("SELECT * FROM users INNER JOIN user_project_join ON " +
             "users.uid=user_project_join.userId WHERE " +
             "user_project_join.projectId=:projectId")
-    List<User> getProjectsForUser(final int projectId);
+    List<User> getUsersForProject(final int projectId);
 
     @Query("SELECT * FROM users INNER JOIN user_project_join ON " +
             "users.uid=user_project_join.userId WHERE " +

@@ -36,4 +36,6 @@ public class UserProjectJoin {
         this.isStudent = isStudent;
         this.note = note;
     }
+
+
 }

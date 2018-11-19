@@ -30,11 +30,13 @@ import fr.eseo.dis.joannomabeduneba.pfe_jury_app.adapters.StudentsAdapter;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.PFEDatabase;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.Project;
 import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.User;
+import fr.eseo.dis.joannomabeduneba.pfe_jury_app.data.UserProjectJoin;
 
 public class ProjectActivity extends AppCompatActivity {
 
     private final static int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 
+    private TextView gradeView;
     private StudentsAdapter mAdapter;
     private List<User> usersList;
 
@@ -51,7 +53,7 @@ public class ProjectActivity extends AppCompatActivity {
         }
 
         Intent intent = getIntent();
-        Project project = (Project) intent.getSerializableExtra("project");
+        final Project project = (Project) intent.getSerializableExtra("project");
 
         TextView titleView = findViewById(R.id.titleView);
         titleView.append(project.getProject());
@@ -62,15 +64,17 @@ public class ProjectActivity extends AppCompatActivity {
         LoadStudentsTask loadStudentsTask = new LoadStudentsTask(project.getProjectId());
         loadStudentsTask.execute();
 
-        final TextView textView = findViewById(R.id.gradeView);
-        textView.setOnKeyListener(new View.OnKeyListener() {
+        gradeView = findViewById(R.id.gradeView);
+        final PutGradeTask putGradeTask = new PutGradeTask(project.getProjectId(), null);
+        putGradeTask.execute();
+        gradeView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 //You can identify which key pressed buy checking keyCode value with KeyEvent.KEYCODE_
                 if(keyCode == KeyEvent.KEYCODE_ENTER) {
-                    if(isNumeric(textView.getText().toString())){
-                        System.out.println(textView.getText());
-                        //TODO INSERT TO DB
+                    if(isNumeric(gradeView.getText().toString())){
+                        PutGradeTask putGradeTask = new PutGradeTask(project.getProjectId(), Integer.parseInt(gradeView.getText().toString()));
+                        putGradeTask.execute();
                     }
                 }
                 return false;
@@ -144,6 +148,55 @@ public class ProjectActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean success) {
 
+        }
+
+        @Override
+        protected void onCancelled() {
+
+        }
+    }
+
+    public class PutGradeTask extends AsyncTask<Void, Void, Boolean> {
+
+        private int projectId;
+        private Integer grade;
+
+        public PutGradeTask(int projectId, Integer grade) {
+            this.projectId = projectId;
+            this.grade = grade;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            User user = PFEDatabase.getInstance(Application.getAppContext()).getUserDao().getLoggedUser();
+            UserProjectJoin project = PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().getUserProjectJoin(user.getUid(), projectId);
+
+            if(project == null){
+                project = new UserProjectJoin(user.getUid(), projectId, null, true, false, null);
+                PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().insert(project);
+            }
+
+            if(grade == null){
+
+                if(project.note == null || project.note.equals("null")){
+                    return false;
+                } else {
+                    grade = Integer.valueOf(project.note);
+                    return true;
+                }
+            }
+
+            project.note = String.valueOf(grade);
+            PFEDatabase.getInstance(Application.getAppContext()).getUserProjectJoinDao().update(project);
+            return true;
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if(success){
+                gradeView.setText(Integer.toString(grade));
+            }
         }
 
         @Override
